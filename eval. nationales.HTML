@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Évaluations Nationales - Collège Victor Hugo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 bg-slate-50 selection:bg-brand-600 selection:text-white">
+
+    <!-- En-tête du site -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-brand-600/20">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-base sm:text-lg tracking-tight">Collège Victor Hugo</h1>
+                    <p class="text-xs text-slate-500 font-medium">Évaluations Nationales Officielles</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="homeBtn" onclick="returnHome()" class="hidden text-xs sm:text-sm font-semibold px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-house"></i> <span>Accueil</span>
+                </button>
+                <button onclick="openAdminModal()" class="text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-lock text-amber-400"></i> <span>Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- OVERLAY ANIMATION DE COMPTE À REBOURS (3, 2, 1) -->
+        <div id="countdownOverlay" class="fixed inset-0 bg-brand-900/95 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center text-white">
+            <div id="countdownNumber" class="text-8xl font-black animate-bounce tracking-widest text-amber-400">3</div>
+            <p id="countdownSubtitle" class="text-xl font-medium mt-6 text-brand-100">Préparation de l'épreuve...</p>
+        </div>
+
+        <!-- SECTION 1: ACCUEIL ÉLÈVE -->
+        <section id="studentPortal" class="max-w-xl mx-auto mt-6 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6 sm:p-8">
+            <div class="text-center mb-8">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-brand-50 text-brand-700 mb-3">Espace Élève</span>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Accès aux Évaluations</h2>
+                <p class="text-slate-500 text-sm mt-1">Sélectionnez votre classe et entrez votre code d'accès unique.</p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">1. Choisissez votre classe</label>
+                    <div class="grid grid-cols-4 gap-2 sm:gap-3">
+                        <button onclick="selectLevel('6e')" id="lvl-6e" class="level-btn py-3 rounded-xl border-2 border-slate-200 hover:border-brand-600 font-bold text-sm text-slate-700 transition">6e</button>
+                        <button onclick="selectLevel('5e')" id="lvl-5e" class="level-btn py-3 rounded-xl border-2 border-slate-200 hover:border-brand-600 font-bold text-sm text-slate-700 transition">5e</button>
+                        <button onclick="selectLevel('4e')" id="lvl-4e" class="level-btn py-3 rounded-xl border-2 border-slate-200 hover:border-brand-600 font-bold text-sm text-slate-700 transition">4e</button>
+                        <button onclick="selectLevel('3e')" id="lvl-3e" class="level-btn py-3 rounded-xl border-2 border-slate-200 hover:border-brand-600 font-bold text-sm text-slate-700 transition">3e</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">2. Saisissez votre code unique</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <input type="text" id="accessCodeInput" placeholder="ex: FR-6000 ou MA-6000" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase tracking-wider text-slate-900 placeholder:text-slate-400 placeholder:normal-case placeholder:font-sans focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <button onclick="verifyStudentAccess()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-brand-600/25 transition flex items-center justify-center gap-2">
+                    <span>Commencer l'évaluation</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 2: PASSAGE DU TEST -->
+        <section id="testView" class="hidden max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-3">
+                <div>
+                    <span id="testSubjectBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide text-white bg-blue-600">Français</span>
+                    <h2 id="testTitle" class="text-xl font-bold text-slate-900 mt-1">Évaluation Nationale</h2>
+                    <p id="testStudentName" class="text-xs text-slate-500 font-medium mt-0.5">Élève : -</p>
+                </div>
+                <div class="text-left sm:text-right">
+                    <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block">Progression</span>
+                    <span id="testProgress" class="text-base font-bold text-brand-600">1 / 20</span>
+                </div>
+            </div>
+
+            <!-- Barre de progression -->
+            <div class="w-full bg-slate-100 h-2 rounded-full my-6 overflow-hidden">
+                <div id="progressBar" class="bg-brand-600 h-full transition-all duration-300" style="width: 5%"></div>
+            </div>
+
+            <!-- Contenu de la question -->
+            <div class="space-y-6">
+                <!-- Texte de lecture (si présent en Français) -->
+                <div id="textSupportBox" class="hidden p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm text-slate-700 leading-relaxed max-h-48 overflow-y-auto">
+                    <h4 class="font-bold text-slate-900 mb-1"><i class="fa-solid fa-book-open text-brand-600 mr-2"></i>Texte de référence :</h4>
+                    <p id="textSupportContent"></p>
+                </div>
+
+                <!-- Zone d'image ou schéma géométrique unique -->
+                <div id="imageSupportBox" class="hidden p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                    <div id="imageSupportContent" class="inline-block"></div>
+                </div>
+
+                <div>
+                    <span id="questionSectionBadge" class="text-xs font-semibold text-brand-600 uppercase tracking-wide">Question</span>
+                    <h3 id="questionText" class="text-lg font-semibold text-slate-900 mt-1">Intitulé de la question...</h3>
+                </div>
+
+                <div id="optionsContainer" class="space-y-3">
+                    <!-- Options injectées par JS -->
+                </div>
+            </div>
+
+            <!-- Pied de page du test -->
+            <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-amber-500"></i> Mode sécurisé (retour arrière impossible)
+                </div>
+                <button id="nextBtn" onclick="navigateQuestion(1)" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow transition flex items-center gap-2">
+                    <span>Valider et suivant</span> <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button id="submitTestBtn" onclick="confirmFinishTest()" class="hidden px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i> <span>Terminer l'épreuve</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 3: ÉCRAN DE FIN ÉLÈVE (AUCUN SCORE AFFICHÉ) -->
+        <section id="resultView" class="hidden max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-sm">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900">Évaluation Transmise</h2>
+            <p class="text-slate-600 text-sm mt-2 leading-relaxed">
+                Vos réponses ont été enregistrées avec succès sur le serveur du collège.<br>
+                Vous pouvez fermer cette page ou laisser votre place.
+            </p>
+            <div class="mt-8">
+                <button onclick="returnHome()" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl shadow transition">
+                    Retour à l'accueil
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 4: TABLEAU DE BORD ADMINISTRATEUR -->
+        <section id="adminDashboard" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-amber-50 text-amber-700 mb-1">Espace Sécurisé Admin</span>
+                    <h2 class="text-2xl font-bold text-slate-900">Gestion des Élèves & Codes</h2>
+                </div>
+                <button onclick="logoutAdmin()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Quitter Admin
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Formulaire d'ajout -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit space-y-4">
+                    <h3 class="font-bold text-slate-900 text-base">Ajouter un élève</h3>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nom</label>
+                        <input type="text" id="adminNom" placeholder="ex: Dupont" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Prénom</label>
+                        <input type="text" id="adminPrenom" placeholder="ex: Lucas" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Classe</label>
+                        <select id="adminNiveau" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            <option value="6e">6e</option>
+                            <option value="5e">5e</option>
+                            <option value="4e">4e</option>
+                            <option value="3e">3e</option>
+                        </select>
+                    </div>
+                    <button onclick="createStudent()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
+                        Générer les codes uniques
+                    </button>
+                </div>
+
+                <!-- Tableau des élèves -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <h3 class="font-bold text-slate-900 text-base mb-4">Liste des élèves et notes</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Élève</th>
+                                    <th class="p-3">Classe</th>
+                                    <th class="p-3">Code Français</th>
+                                    <th class="p-3">Code Maths</th>
+                                    <th class="p-3">Notes /20</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminStudentsTableBody" class="divide-y divide-slate-100">
+                                <!-- Dynamique -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALE MOT DE PASSE ADMIN -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
+            <div class="text-center">
+                <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center mx-auto mb-2 text-lg">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Accès Administrateur</h3>
+                <p class="text-xs text-slate-500 mt-1">Réservé au personnel habilité du Collège Victor Hugo.</p>
+            </div>
+            <div>
+                <input type="password" id="adminPasswordInput" placeholder="Mot de passe secret" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-center focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-600">
+                <p id="adminPasswordError" class="text-xs text-rose-600 font-medium mt-1 text-center hidden">Mot de passe erroné.</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeAdminModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition">Annuler</button>
+                <button onclick="verifyAdminPassword()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-sm transition shadow-sm">Connexion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIQUE DE L'APPLICATION -->
+    <script>
+        const ADMIN_PWD = 'Charles_177477';
+
+        // Chargement synchronisé via localStorage ET l'URL (pour partage universel)
+        let students = [];
+        
+        function loadStudents() {
+            // Vérifier s'il y a des données encodées dans l'URL (partage direct)
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataParam = urlParams.get('data');
+            
+            if (dataParam) {
+                try {
+                    students = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
+                    localStorage.setItem('vh_students', JSON.stringify(students));
+                    return;
+                } catch(e) {
+                    console.error("Erreur de décodage URL");
+                }
+            }
+
+            // Sinon lecture du localStorage local
+            students = JSON.parse(localStorage.getItem('vh_students')) || [
+                { id: 'def_6e', nom: 'Test', prenom: 'Élève 6e', niveau: '6e', codeFR: 'FR-6000', codeMA: 'MA-6000', noteFR: null, noteMA: null },
+                { id: 'def_5e', nom: 'Test', prenom: 'Élève 5e', niveau: '5e', codeFR: 'FR-5000', codeMA: 'MA-5000', noteFR: null, noteMA: null },
+                { id: 'def_4e', nom: 'Test', prenom: 'Élève 4e', niveau: '4e', codeFR: 'FR-4000', codeMA: 'MA-4000', noteFR: null, noteMA: null },
+                { id: 'def_3e', nom: 'Test', prenom: 'Élève 3e', niveau: '3e', codeFR: 'FR-3000', codeMA: 'MA-3000', noteFR: null, noteMA: null }
+            ];
+        }
+
+        loadStudents();
+
+        function saveStudents() {
+            localStorage.setItem('vh_students', JSON.stringify(students));
+            // Mettre à jour l'URL silencieusement pour emporter les données partout
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(students))));
+                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?data=' + encoded;
+                window.history.replaceState({path: newUrl}, '', newUrl);
+            } catch(e) {
+                console.error("Erreur d'encodage URL");
+            }
+        }
+
+        function hideAllSections() {
+            document.getElementById('studentPortal').classList.add('hidden');
+            document.getElementById('testView').classList.add('hidden');
+            document.getElementById('resultView').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+        }
+
+        function returnHome() {
+            hideAllSections();
+            document.getElementById('studentPortal').classList.remove('hidden');
+            document.getElementById('homeBtn').classList.add('hidden');
+            selectedLevel = null;
+            document.querySelectorAll('.level-btn').forEach(b => {
+                b.classList.remove('border-brand-600', 'bg-brand-50', 'text-brand-700');
+            });
+            document.getElementById('accessCodeInput').value = '';
+        }
+
+        function selectLevel(lvl) {
+            selectedLevel = lvl;
+            document.querySelectorAll('.level-btn').forEach(b => {
+                b.classList.remove('border-brand-600', 'bg-brand-50', 'text-brand-700');
+            });
+            document.getElementById('lvl-' + lvl).classList.add('border-brand-600', 'bg-brand-50', 'text-brand-700');
+        }
+
+        // --- GÉNÉRATEUR DE QUESTIONS MATHS ---
+        function generateMathQuestions(level) {
+            let questions = [];
+            
+            for (let i = 1; i <= 30; i++) {
+                let qText = "";
+                let ans = 0;
+                let svgImage = null;
+
+                if (i === 4) {
+                    ans = 15;
+                    qText = `Quel nombre décimal correspond au repère rouge sur cette frise graduée ?`;
+                    svgImage = `<svg width="280" height="50" viewBox="0 0 280 50"><line x1="20" y1="25" x2="260" y2="25" stroke="#334155" stroke-width="2"/><line x1="50" y1="15" x2="50" y2="35" stroke="#334155" stroke-width="2"/><text x="42" y="47" font-size="11" fill="#334155">10</text><line x1="210" y1="15" x2="210" y2="35" stroke="#334155" stroke-width="2"/><text x="202" y="47" font-size="11" fill="#334155">20</text><circle cx="130" cy="25" r="5" fill="#ef4444"/><text x="110" y="12" font-size="11" font-weight="bold" fill="#ef4444">Repère ?</text></svg>`;
+                } else if (i === 11) {
+                    let longueur = 12;
+                    let largeur = 5;
+                    ans = (longueur + largeur) * 2;
+                    qText = `Quel est le périmètre de ce rectangle (Longueur = ${longueur} cm, Largeur = ${largeur} cm) ?`;
+                    svgImage = `<svg width="200" height="90" viewBox="0 0 200 90"><rect x="20" y="15" width="160" height="60" fill="none" stroke="#4f46e5" stroke-width="3"/><text x="90" y="11" font-size="11" fill="#4f46e5">${longueur} cm</text><text x="2" y="50" font-size="11" fill="#4f46e5">${largeur} cm</text></svg>`;
+                } else if (i === 18) {
+                    ans = 90;
+                    qText = `Quelle est la mesure en degrés de cet angle droit remarquable ?`;
+                    svgImage = `<svg width="120" height="100" viewBox="0 0 120 100"><path d="M 20 80 L 80 80 L 80 20" fill="none" stroke="#0ea5e9" stroke-width="3"/><path d="M 70 80 L 70 70 L 80 70" fill="none" stroke="#0ea5e9" stroke-width="2"/><text x="45" y="95" font-size="11" fill="#334155">Angle droit</text></svg>`;
+                } else if (i === 25) {
+                    ans = 75;
+                    qText = `Quel pourcentage du disque complet représente la partie colorée en violet ?`;
+                    svgImage = `<svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/><path d="M 50 50 L 50 10 A 40 40 0 1 1 10 50 Z" fill="#4f46e5"/></svg>`;
+                } else {
+                    let typeQ = i % 4;
+                    if (typeQ === 0) {
+                        let a = Math.floor(Math.random() * 12) + 2;
+                        let b = Math.floor(Math.random() * 10) + 2;
+                        ans = a * b;
+                        qText = `Quel est le résultat du produit : ${a} × ${b} ?`;
+                    } else if (typeQ === 1) {
+                        let a = Math.floor(Math.random() * 80) + 20;
+                        let b = Math.floor(Math.random() * a) + 1;
+                        ans = a - b;
+                        qText = `Calculez la différence : ${a} - ${b} =`;
+                    } else if (typeQ === 2) {
+                        let a = Math.floor(Math.random() * 150) + 15;
+                        let b = Math.floor(Math.random() * 150) + 15;
+                        ans = a + b;
+                        qText = `Calculez la somme : ${a} + ${b} =`;
+                    } else {
+                        let a = Math.floor(Math.random() * 10) + 2;
+                        let b = Math.floor(Math.random() * 8) + 2;
+                        let c = Math.floor(Math.random() * 10) + 1;
+                        ans = (a * b) + c;
+                        qText = `Calculez le résultat de l'opération : (${a} × ${b}) + ${c} =`;
+                    }
+                }
+
+                let options = [ans, ans + 3, ans - 2, ans + 5];
+                if (ans - 2 < 0) options[2] = ans + 4;
+                options = [...new Set(options)];
+                while(options.length < 4) {
+                    options.push(ans + options.length + 1);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                questions.push({
+                    q: `Question ${i} : ` + qText,
+                    image: svgImage,
+                    options: options,
+                    answer: options.indexOf(ans)
+                });
+            }
+
+            for (let i = 31; i <= 40; i++) {
+                let prix = Math.floor(Math.random() * 15) + 5;
+                let quantite = Math.floor(Math.random() * 6) + 2;
+                let monnaieDepart = (prix * quantite) + Math.floor(Math.random() * 20) + 10;
+                let ans = monnaieDepart - (prix * quantite);
+                
+                let qText = `Un client achète ${quantite} articles à ${prix} € l'unité. Il paie avec un billet de ${monnaieDepart} €. Quelle somme doit-on lui rendre ?`;
+                let options = [ans, ans + 4, ans - 2, ans + 10];
+                if (ans - 2 < 0) options[2] = ans + 3;
+                options = [...new Set(options)];
+                while(options.length < 4) {
+                    options.push(ans + options.length + 2);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                questions.push({
+                    q: `Question ${i} (Problème) : ` + qText,
+                    image: null,
+                    options: options,
+                    answer: options.indexOf(ans)
+                });
+            }
+
+            return questions;
+        }
+
+        // --- GÉNÉRATEUR DE QUESTIONS FRANÇAIS ---
+        function generateFrenchQuestions(level) {
+            let questions = [];
+            let texteLecture = "Le vent soufflait en rafales ce soir-là, secouant les branches squelettiques des grands chênes centenaires. Arthur marchait d'un pas vif sur le sentier boueux, serrant son manteau contre le froid mordant. Il savait qu'il ne lui restait plus qu'un quart d'heure avant la tombée complète de la nuit.";
+
+            questions.push({
+                text: texteLecture,
+                q: `Question 1 : D'après le texte, quel temps fait-il ce soir-là ?`,
+                options: ["Le vent souffle fort et il fait très froid", "Il fait un grand soleil d'été", "Une pluie tropicale inonde la forêt", "Le ciel est totalement calme et doux"],
+                answer: 0
+            });
+            questions.push({
+                text: texteLecture,
+                q: `Question 2 : Quel est le prénom du personnage principal qui marche sur le sentier ?`,
+                options: ["Arthur", "Lucas", "Thomas", "Antoine"],
+                answer: 0
+            });
+            questions.push({
+                text: texteLecture,
+                q: `Question 3 : Comment Arthur se déplace-t-il sur le sentier boueux ?`,
+                options: ["D'un pas vif", "Tranquillement en flânant", "À bicyclette", "En courant très lentement"],
+                answer: 0
+            });
+            questions.push({
+                text: texteLecture,
+                q: `Question 4 : Contre quoi Arthur serre-t-il son manteau ?`,
+                options: ["Contre le froid mordant", "Contre la pluie battante", "Contre la chaleur de l'été", "Contre le vent de sable"],
+                answer: 0
+            });
+            questions.push({
+                text: texteLecture,
+                q: `Question 5 : Combien de temps lui reste-t-il avant la tombée complète de la nuit ?`,
+                options: ["Un quart d'heure", "Exactement une heure", "Deux minutes", "La nuit est déjà totalement tombée"],
+                answer: 0
+            });
+
+            questions.push({
+                q: `Question 6 : Dans la phrase « Le chat noir dort sur le tapis », quelle est la nature du mot souligné : « noir » ?`,
+                options: ["Un adjectif qualificatif", "Un nom commun", "Un verbe d'action", "Un déterminant"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 7 : Dans la phrase « Marie mange une pomme », quelle est la nature du mot « mange » ?`,
+                options: ["Un verbe", "Un adjectif", "Un pronom", "Un nom propre"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 8 : Dans la phrase « Les oiseaux chantent le matin », quelle est la nature du mot « Les » ?`,
+                options: ["Un déterminant (article)", "Un adjectif", "Un verbe", "Un adverbe"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 9 : Dans la phrase « Il court très rapidement », quelle est la nature du mot « rapidement » ?`,
+                options: ["Un adverbe", "Un adjectif", "Un nom", "Un verbe"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 10 : Dans la phrase « Paul et Julie jouent dans le jardin », quelle est la nature du mot « Paul » ?`,
+                options: ["Un nom propre", "Un verbe", "Un adjectif", "Un pronom"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 11 : Quel est le temps du verbe dans la phrase : « Demain, nous irons au cinéma » ?`,
+                options: ["Futur simple", "Présent de l'indicatif", "Imparfait", "Passé composé"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 12 : Quel est l'infinitif du verbe conjugué dans « Elle finira son travail » ?`,
+                options: ["Finir", "Faire", "Avoir", "Être"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 13 : Identifiez le groupe du verbe « prendre » :`,
+                options: ["3ème groupe", "1er groupe", "2ème groupe", "Ce n'est pas un verbe"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 14 : Dans la phrase « Un grand chien noir aboie », quel est le noyau du groupe nominal sujet ?`,
+                options: ["chien", "grand", "noir", "Un"],
+                answer: 0
+            });
+            questions.push({
+                q: `Question 15 : Quel mot est correctement orthographié au pluriel ?`,
+                options: ["Des châteaux", "Des bijous", "Des genoux", "Des journal"],
+                answer: 2
+            });
+            
+            for (let i = 16; i <= 20; i++) {
+                let synonymesList = [
+                    { q: `Question ${i} : Quel est un synonyme du mot « joyeux » ?`, opts: ["Heureux", "Triste", "Fatigué", "Fâché"], ans: 0 },
+                    { q: `Question ${i} : Quel est un antonyme (contraire) du mot « grand » ?`, opts: ["Petit", "Immense", "Large", "Haut"], ans: 0 },
+                    { q: `Question ${i} : Que désigne le préfixe « re- » dans le verbe « refaire » ?`, opts: ["Répéter l'action", "Annuler l'action", "Faire à l'envers", "Rien du tout"], ans: 0 },
+                    { q: `Question ${i} : Dans la phrase « Le facteur distribue le courrier », quelle est la fonction du groupe « le courrier » ?`, opts: ["Complément d'objet direct (COD)", "Sujet", "Attribut du sujet", "Complément circonstanciel"], ans: 0 },
+                    { q: `Question ${i} : Quel mot est un homophone correct pour compléter : « Il a perdu ... clés » ?`, opts: ["ses", "ces", "c'est", "sait"], ans: 0 }
+                ];
+                let item = synonymesList[i - 16];
+                questions.push({
+                    q: item.q,
+                    options: item.opts,
+                    answer: item.ans
+                });
+            }
+
+            return questions;
+        }
+
+        // --- NAVIGATION ET LOGIQUE DES TESTS ---
+        function verifyStudentAccess() {
+            const codeInput = document.getElementById('accessCodeInput').value.trim().toUpperCase();
+
+            if (!selectedLevel) {
+                alert("Veuillez sélectionner votre classe avant de saisir le code.");
+                return;
+            }
+            if (!codeInput) {
+                alert("Veuillez entrer votre code d'accès unique.");
+                return;
+            }
+
+            let foundStudent = null;
+            let subject = null;
+
+            for (let s of students) {
+                if (s.niveau === selectedLevel) {
+                    if (s.codeFR === codeInput) {
+                        foundStudent = s;
+                        subject = 'FR';
+                        break;
+                    }
+                    if (s.codeMA === codeInput) {
+                        foundStudent = s;
+                        subject = 'MA';
+                        break;
+                    }
+                }
+            }
+
+            if (!foundStudent) {
+                alert("Code invalide ou ne correspondant pas au niveau sélectionné.");
+                return;
+            }
+
+            startCountdownAndTest(foundStudent, subject);
+        }
+
+        function startCountdownAndTest(student, subject) {
+            const overlay = document.getElementById('countdownOverlay');
+            const numEl = document.getElementById('countdownNumber');
+            const subEl = document.getElementById('countdownSubtitle');
+
+            overlay.classList.remove('hidden');
+            let count = 3;
+            numEl.innerText = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numEl.innerText = count;
+                } else if (count === 0) {
+                    numEl.innerText = "C'est parti !";
+                    subEl.innerText = "Bonne chance !";
+                } else {
+                    clearInterval(timer);
+                    overlay.classList.add('hidden');
+                    initTestSession(student, subject);
+                }
+            }, 1000);
+        }
+
+        function initTestSession(student, subject) {
+            let questions = subject === 'FR' ? generateFrenchQuestions(student.niveau) : generateMathQuestions(student.niveau);
+
+            currentTestState = {
+                studentId: student.id,
+                studentName: `${student.prenom} ${student.nom}`,
+                subject: subject,
+                level: student.niveau,
+                questions: questions,
+                currentIndex: 0,
+                answers: {}
+            };
+
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.go(1);
+            };
+
+            hideAllSections();
+            document.getElementById('testView').classList.remove('hidden');
+            document.getElementById('homeBtn').classList.add('hidden');
+
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const { questions, currentIndex, answers, subject, level } = currentTestState;
+            const currentQ = questions[currentIndex];
+
+            document.getElementById('testProgress').innerText = `${currentIndex + 1} / ${questions.length}`;
+            const percent = ((currentIndex + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+
+            document.getElementById('testSubjectBadge').innerText = subject === 'FR' ? 'Français (20 questions)' : 'Mathématiques (40 questions)';
+            document.getElementById('testSubjectBadge').className = `inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide text-white ${subject === 'FR' ? 'bg-blue-600' : 'bg-emerald-600'}`;
+            document.getElementById('testTitle').innerText = `Évaluation Nationale - ${level.toUpperCase()}`;
+            document.getElementById('testStudentName').innerText = `Élève : ${currentTestState.studentName}`;
+
+            const textSupportBox = document.getElementById('textSupportBox');
+            if (currentQ.text && subject === 'FR' && currentIndex < 5) {
+                textSupportBox.classList.remove('hidden');
+                document.getElementById('textSupportContent').innerText = currentQ.text;
+            } else {
+                textSupportBox.classList.add('hidden');
+            }
+
+            const imageSupportBox = document.getElementById('imageSupportBox');
+            if (currentQ.image) {
+                imageSupportBox.classList.remove('hidden');
+                document.getElementById('imageSupportContent').innerHTML = currentQ.image;
+            } else {
+                imageSupportBox.classList.add('hidden');
+            }
+
+            document.getElementById('questionSectionBadge').innerText = `Question ${currentIndex + 1}`;
+            document.getElementById('questionText').innerText = currentQ.q;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = currentQ.options.map((opt, i) => {
+                const isSelected = answers[currentIndex] === i;
+                return `
+                    <label onclick="selectAnswer(${i})" class="flex items-center p-4 rounded-xl border-2 cursor-pointer transition ${
+                        isSelected 
+                            ? 'border-brand-600 bg-brand-50/50 text-brand-900 font-semibold' 
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                    }">
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3 shrink-0 ${
+                            isSelected ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300'
+                        }">
+                            ${isSelected ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                        </div>
+                        <span class="text-sm sm:text-base">${opt}</span>
+                    </label>
+                `;
+            }).join('');
+
+            if (currentIndex === questions.length - 1) {
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('submitTestBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('nextBtn').classList.remove('hidden');
+                document.getElementById('submitTestBtn').classList.add('hidden');
+            }
+        }
+
+        function selectAnswer(index) {
+            currentTestState.answers[currentTestState.currentIndex] = index;
+            renderCurrentQuestion();
+        }
+
+        function navigateQuestion(dir) {
+            if (dir > 0) {
+                if (currentTestState.answers[currentTestState.currentIndex] === undefined) {
+                    alert("Veuillez sélectionner une réponse avant de continuer.");
+                    return;
+                }
+                currentTestState.currentIndex++;
+                renderCurrentQuestion();
+            }
+        }
+
+        function confirmFinishTest() {
+            if (currentTestState.answers[currentTestState.currentIndex] === undefined) {
+                alert("Veuillez sélectionner une réponse pour cette dernière question.");
+                return;
+            }
+
+            let correct = 0;
+            currentTestState.questions.forEach((q, idx) => {
+                if (currentTestState.answers[idx] === q.answer) correct++;
+            });
+
+            const finalScore = Math.round((correct / currentTestState.questions.length) * 20 * 10) / 10;
+
+            const student = students.find(s => s.id === currentTestState.studentId);
+            if (student) {
+                if (currentTestState.subject === 'FR') student.noteFR = finalScore;
+                if (currentTestState.subject === 'MA') student.noteMA = finalScore;
+                saveStudents();
+            }
+
+            window.onpopstate = null;
+
+            hideAllSections();
+            document.getElementById('resultView').classList.remove('hidden');
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('adminModal').classList.add('flex');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordError').classList.add('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('flex');
+        }
+
+        function verifyAdminPassword() {
+            const pwd = document.getElementById('adminPasswordInput').value;
+            if (pwd === ADMIN_PWD) {
+                closeAdminModal();
+                hideAllSections();
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('homeBtn').classList.remove('hidden');
+                renderAdminTable();
+            } else {
+                document.getElementById('adminPasswordError').classList.remove('hidden');
+            }
+        }
+
+        function logoutAdmin() {
+            returnHome();
+        }
+
+        function generateCode(prefix) {
+            return `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+
+        function createStudent() {
+            const nom = document.getElementById('adminNom').value.trim();
+            const prenom = document.getElementById('adminPrenom').value.trim();
+            const niveau = document.getElementById('adminNiveau').value;
+
+            if (!nom || !prenom) {
+                alert("Veuillez renseigner le nom et le prénom de l'élève.");
+                return;
+            }
+
+            const newStudent = {
+                id: 'stu_' + Date.now() + Math.random(),
+                nom: nom,
+                prenom: prenom,
+                niveau: niveau,
+                codeFR: generateCode('FR'),
+                codeMA: generateCode('MA'),
+                noteFR: null,
+                noteMA: null
+            };
+
+            students.push(newStudent);
+            saveStudents();
+
+            document.getElementById('adminNom').value = '';
+            document.getElementById('adminPrenom').value = '';
+            renderAdminTable();
+            
+            alert("Élève créé avec succès ! Le lien a été mis à jour pour emporter cet élève partout avec vous.");
+        }
+
+        function deleteStudent(id) {
+            if (confirm("Voulez-vous supprimer cet élève ?")) {
+                students = students.filter(s => s.id !== id);
+                saveStudents();
+                renderAdminTable();
+            }
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminStudentsTableBody');
+            tbody.innerHTML = '';
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Aucun élève enregistré pour le moment.</td></tr>`;
+                return;
+            }
+
+            students.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-slate-50 transition";
+
+                const noteFR = s.noteFR !== null ? `<span class="font-bold text-brand-600">${s.noteFR}/20</span>` : `<span class="text-slate-400 italic">Non passé</span>`;
+                const noteMA = s.noteMA !== null ? `<span class="font-bold text-brand-600">${s.noteMA}/20</span>` : `<span class="text-slate-400 italic">Non passé</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-900">${s.nom} ${s.prenom}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded bg-slate-100 text-xs font-bold text-slate-700">${s.niveau.toUpperCase()}</span></td>
+                    <td class="p-3 font-mono font-bold text-brand-600">${s.codeFR}</td>
+                    <td class="p-3 font-mono font-bold text-emerald-600">${s.codeMA}</td>
+                    <td class="p-3 text-xs">Fr : ${noteFR}<br>Ma : ${noteMA}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteStudent('${s.id}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-semibold transition">Supprimer</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
